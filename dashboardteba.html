@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة تحكم طيبة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#080808;
+  --gold:#e0b252;
+  --gold2:#f5c842;
+  --dark:#111;
+  --card:#141414;
+  --border:rgba(224,178,82,0.2);
+  --red:#e55;
+  --green:#2ecc71;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif;}
+body{background:var(--black);color:#fff;min-height:100vh;}
+
+/* ===== LOGIN ===== */
+#loginScreen{
+  position:fixed;inset:0;background:var(--black);
+  display:flex;align-items:center;justify-content:center;z-index:9999;
+}
+.login-box{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:50px 40px;width:90%;max-width:420px;text-align:center;
+  box-shadow:0 0 60px rgba(224,178,82,0.1);
+}
+.login-logo{font-size:42px;margin-bottom:10px;}
+.login-box h2{color:var(--gold);font-size:26px;margin-bottom:8px;}
+.login-box p{color:#666;margin-bottom:35px;font-size:14px;}
+.login-box input{
+  width:100%;padding:14px 18px;margin-bottom:14px;
+  border-radius:12px;border:1px solid #2a2a2a;
+  background:#0d0d0d;color:#fff;font-family:'Cairo',sans-serif;font-size:15px;
+}
+.login-box input:focus{outline:none;border-color:var(--gold);}
+.login-btn{
+  width:100%;padding:15px;background:var(--gold);border:none;
+  border-radius:12px;font-family:'Cairo',sans-serif;font-weight:700;
+  font-size:16px;cursor:pointer;transition:.3s;
+}
+.login-btn:hover{background:var(--gold2);}
+.login-error{color:var(--red);font-size:13px;margin-top:10px;display:none;}
+
+/* ===== DASHBOARD ===== */
+#dashboard{display:none;}
+
+.topbar{
+  background:rgba(0,0,0,0.9);border-bottom:1px solid var(--border);
+  padding:15px 30px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(10px);
+}
+.topbar-logo{color:var(--gold);font-size:20px;font-weight:900;display:flex;align-items:center;gap:10px;}
+.topbar-logo span{font-size:26px;}
+.logout-btn{
+  background:transparent;border:1px solid #333;color:#888;
+  padding:8px 20px;border-radius:20px;cursor:pointer;font-family:'Cairo',sans-serif;
+  font-size:13px;transition:.3s;
+}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+
+.main{max-width:1300px;margin:auto;padding:30px 20px;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:35px;}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:22px;text-align:center;
+}
+.stat-card .num{font-size:36px;font-weight:900;color:var(--gold);}
+.stat-card p{color:#888;font-size:13px;margin-top:4px;}
+
+/* TABS */
+.tabs{display:flex;gap:10px;margin-bottom:30px;flex-wrap:wrap;}
+.tab{
+  background:transparent;border:1px solid #2a2a2a;color:#888;
+  padding:10px 24px;border-radius:30px;cursor:pointer;font-family:'Cairo',sans-serif;
+  font-size:14px;font-weight:600;transition:.3s;
+}
+.tab.active{background:var(--gold);color:#000;border-color:var(--gold);}
+.tab:hover:not(.active){border-color:var(--gold);color:var(--gold);}
+
+/* PANELS */
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* SECTION TITLE */
+.section-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;
+}
+.section-head h3{color:var(--gold);font-size:20px;}
+.add-btn{
+  background:var(--gold);color:#000;border:none;
+  padding:10px 22px;border-radius:30px;cursor:pointer;
+  font-family:'Cairo',sans-serif;font-weight:700;font-size:14px;
+}
+
+/* PRODUCTS TABLE */
+.products-table{width:100%;border-collapse:collapse;}
+.products-table th{
+  background:#0d0d0d;color:var(--gold);padding:14px 16px;
+  text-align:right;font-size:13px;border-bottom:1px solid var(--border);
+}
+.products-table td{
+  padding:14px 16px;border-bottom:1px solid #1a1a1a;
+  font-size:14px;vertical-align:middle;
+}
+.products-table tr:hover td{background:rgba(224,178,82,0.03);}
+.cat-badge{
+  padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block;
+}
+.cat-men{background:rgba(15,47,38,.8);color:#4ecb71;border:1px solid #4ecb71;}
+.cat-women{background:rgba(80,20,60,.8);color:#e584c4;border:1px solid #e584c4;}
+.cat-unisex{background:rgba(60,50,10,.8);color:var(--gold);border:1px solid var(--gold);}
+.cat-oud{background:rgba(60,30,0,.8);color:#d4845a;border:1px solid #d4845a;}
+.action-btns{display:flex;gap:8px;}
+.edit-btn{
+  background:rgba(224,178,82,0.1);color:var(--gold);border:1px solid var(--border);
+  padding:6px 14px;border-radius:8px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;
+}
+.del-btn{
+  background:rgba(229,85,85,0.1);color:var(--red);border:1px solid rgba(229,85,85,0.3);
+  padding:6px 14px;border-radius:8px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;
+}
+
+/* SETTINGS PANEL */
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.setting-card{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;padding:25px;
+}
+.setting-card h4{color:var(--gold);margin-bottom:18px;font-size:16px;}
+.setting-card label{display:block;color:#888;font-size:13px;margin-bottom:6px;margin-top:14px;}
+.setting-card input,.setting-card textarea,.setting-card select{
+  width:100%;padding:11px 14px;border-radius:10px;
+  border:1px solid #2a2a2a;background:#0d0d0d;color:#fff;
+  font-family:'Cairo',sans-serif;font-size:14px;
+}
+.setting-card input:focus,.setting-card textarea:focus{outline:none;border-color:var(--gold);}
+.save-btn{
+  width:100%;margin-top:18px;padding:12px;background:var(--gold);
+  border:none;border-radius:10px;font-family:'Cairo',sans-serif;
+  font-weight:700;font-size:15px;cursor:pointer;transition:.3s;
+}
+.save-btn:hover{background:var(--gold2);}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.92);
+  z-index:5000;display:none;align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:18px;padding:35px;width:90%;max-width:540px;
+  max-height:90vh;overflow-y:auto;
+}
+.modal h3{color:var(--gold);margin-bottom:25px;font-size:20px;}
+.modal label{display:block;color:#888;font-size:13px;margin-bottom:6px;margin-top:16px;}
+.modal input,.modal textarea,.modal select{
+  width:100%;padding:12px 14px;border-radius:10px;
+  border:1px solid #2a2a2a;background:#0d0d0d;color:#fff;
+  font-family:'Cairo',sans-serif;font-size:14px;
+}
+.modal input:focus,.modal textarea:focus,.modal select:focus{outline:none;border-color:var(--gold);}
+.modal textarea{height:80px;resize:none;}
+.modal-btns{display:flex;gap:10px;margin-top:25px;}
+.modal-btns button{flex:1;padding:13px;border-radius:10px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;font-size:15px;}
+.modal-btns .confirm{background:var(--gold);color:#000;}
+.modal-btns .cancel{background:#1a1a1a;color:#888;}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);
+  background:var(--green);color:#000;padding:14px 30px;border-radius:30px;
+  font-weight:700;font-size:15px;z-index:9999;transition:.4s;opacity:0;
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.error{background:var(--red);color:#fff;}
+
+/* SAVING OVERLAY */
+.saving-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);
+  z-index:8000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:15px;
+}
+.saving-overlay.show{display:flex;}
+.spinner{
+  width:50px;height:50px;border:4px solid rgba(224,178,82,0.2);
+  border-top:4px solid var(--gold);border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.saving-overlay p{color:var(--gold);font-size:16px;font-weight:600;}
+
+/* SEARCH */
+.search-bar{
+  width:100%;padding:12px 18px;border-radius:30px;
+  border:1px solid #2a2a2a;background:#0d0d0d;color:#fff;
+  font-family:'Cairo',sans-serif;font-size:14px;margin-bottom:20px;
+}
+.search-bar:focus{outline:none;border-color:var(--gold);}
+
+@media(max-width:768px){
+  .topbar{padding:12px 15px;}
+  .main{padding:20px 12px;}
+  .products-table th:nth-child(3),.products-table td:nth-child(3){display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">🔐</div>
+    <h2>لوحة تحكم طيبة</h2>
+    <p>أدخل بياناتك للدخول</p>
+    <input type="text" id="loginUser" placeholder="اسم المستخدم" />
+    <input type="password" id="loginPass" placeholder="كلمة المرور" />
+    <button class="login-btn" onclick="doLogin()">دخول</button>
+    <p class="login-error" id="loginError">❌ بيانات خاطئة، حاول مرة تانية</p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="topbar">
+    <div class="topbar-logo"><span>🏪</span> لوحة تحكم طيبة للعطور</div>
+    <button class="logout-btn" onclick="doLogout()">تسجيل خروج ↩</button>
+  </div>
+
+  <div class="main">
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="num" id="statTotal">0</div><p>إجمالي العطور</p></div>
+      <div class="stat-card"><div class="num" id="statMen">0</div><p>عطور رجالية</p></div>
+      <div class="stat-card"><div class="num" id="statWomen">0</div><p>عطور نسائية</p></div>
+      <div class="stat-card"><div class="num" id="statOud">0</div><p>عود / مسك</p></div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('products',this)">🧴 إدارة العطور</button>
+      <button class="tab" onclick="switchTab('settings',this)">⚙️ الإعدادات</button>
+      <button class="tab" onclick="switchTab('publish',this)">🚀 نشر التعديلات</button>
+    </div>
+
+    <!-- PRODUCTS PANEL -->
+    <div class="panel active" id="panel-products">
+      <div class="section-head">
+        <h3>🧴 كل العطور</h3>
+        <button class="add-btn" onclick="openAddModal()">+ إضافة عطر</button>
+      </div>
+      <input type="text" class="search-bar" placeholder="🔍 ابحث عن عطر..." oninput="searchProducts(this.value)" />
+      <div style="overflow-x:auto;">
+        <table class="products-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>الاسم</th>
+              <th>الفئة</th>
+              <th>الأسعار</th>
+              <th>الوصف</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="productsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SETTINGS PANEL -->
+    <div class="panel" id="panel-settings">
+      <div class="settings-grid">
+        <div class="setting-card">
+          <h4>💰 الأسعار</h4>
+          <label>سعر 30 مل (جنيه)</label>
+          <input type="number" id="price30" value="200" />
+          <label>سعر 50 مل (جنيه)</label>
+          <input type="number" id="price50" value="350" />
+          <label>سعر 100 مل (جنيه)</label>
+          <input type="number" id="price100" value="650" />
+          <button class="save-btn" onclick="savePrices()">💾 حفظ الأسعار</button>
+        </div>
+        <div class="setting-card">
+          <h4>📞 بيانات التواصل</h4>
+          <label>رقم الواتساب (مع كود البلد)</label>
+          <input type="text" id="whatsNum" value="2001202297700" />
+          <label>رابط الانستجرام</label>
+          <input type="text" id="instaLink" value="https://www.instagram.com/teba_perfumes" />
+          <label>تيليجرام Chat ID</label>
+          <input type="text" id="tgChat" value="1118704634" />
+          <button class="save-btn" onclick="saveContact()">💾 حفظ بيانات التواصل</button>
+        </div>
+        <div class="setting-card">
+          <h4>🖼️ صورة المنتجات</h4>
+          <label>رابط صورة المنتج (URL)</label>
+          <input type="text" id="productImgUrl" placeholder="https://..." />
+          <p style="color:#555;font-size:12px;margin-top:8px;">أو ارفع صورة من جهازك</p>
+          <label>رفع صورة</label>
+          <input type="file" id="productImgFile" accept="image/*" onchange="previewImg(this)" style="color:#888;" />
+          <img id="imgPreview" style="width:100%;border-radius:10px;margin-top:12px;display:none;" />
+          <button class="save-btn" onclick="saveProductImg()">💾 حفظ الصورة</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PUBLISH PANEL -->
+    <div class="panel" id="panel-publish">
+      <div class="setting-card" style="max-width:600px;margin:auto;text-align:center;">
+        <h4>🚀 نشر التعديلات على GitHub</h4>
+        <p style="color:#888;font-size:14px;line-height:1.8;margin:15px 0;">
+          لما تخلص تعديلاتك، اضغط الزرار ده عشان يتحدث الموقع على GitHub Pages فوراً
+        </p>
+        <div id="publishStatus" style="padding:20px;color:#666;font-size:14px;"></div>
+        <button class="save-btn" style="margin-top:0;" onclick="publishToGitHub()">🚀 نشر التعديلات الآن</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">إضافة عطر جديد</h3>
+    <label>الاسم العربي *</label>
+    <input type="text" id="mName" placeholder="مثال: مسك الليل" />
+    <label>الاسم الإنجليزي *</label>
+    <input type="text" id="mEn" placeholder="مثال: Night Musk" />
+    <label>الوصف</label>
+    <textarea id="mDesc" placeholder="وصف قصير للعطر..."></textarea>
+    <label>الفئة *</label>
+    <select id="mCat">
+      <option value="men">🧔 رجالي</option>
+      <option value="women">👩 نسائي</option>
+      <option value="unisex">✨ مشترك</option>
+      <option value="oud">🪵 عود / مسك</option>
+    </select>
+    <div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:12px;padding:16px;margin-top:16px;">
+      <p style="color:var(--gold);font-size:13px;margin-bottom:12px;">💰 سعر خاص لهذا العطر (اتركه فاضي لو هيتبع السعر العام)</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div>
+          <label style="margin-top:0;">30 مل</label>
+          <input type="number" id="mP30" placeholder="200" />
+        </div>
+        <div>
+          <label style="margin-top:0;">50 مل</label>
+          <input type="number" id="mP50" placeholder="350" />
+        </div>
+        <div>
+          <label style="margin-top:0;">100 مل</label>
+          <input type="number" id="mP100" placeholder="650" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="confirm" onclick="saveProduct()">✅ حفظ</button>
+      <button class="cancel" onclick="closeModal()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- SAVING OVERLAY -->
+<div class="saving-overlay" id="savingOverlay">
+  <div class="spinner"></div>
+  <p id="savingMsg">جاري الحفظ...</p>
+</div>
+
+<script>
+// ===== CONFIG =====
+const ADMIN_USER = 'tebaperfume';
+const ADMIN_PASS = 'tebaperfume';
+const GITHUB_TOKEN = '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';
+const GITHUB_OWNER = 'tebaperfume';
+const GITHUB_REPO = 'tebaperfume';
+const GITHUB_FILE = 'index.html';
+
+// ===== PRODUCTS DATA =====
+let products = [
+  {name:'اربا بورا',en:'ERBA PURA',desc:'سيترس منعش مع الفانيليا — نشيط ومغري.',cat:'men'},
+  {name:'سترونجر وذ يو',en:'Stronger With You',desc:'هيل دافئ وكستناء حلو — واثق وعصري.',cat:'men'},
+  {name:'سترونج مي',en:'Strong Me',desc:'مسك خشبي جريء بطابع رجولي قوي.',cat:'men'},
+  {name:'مضاوي',en:'MADAWY',desc:'بهارات شرقية كلاسيكية ممزوجة بدفء العنبر.',cat:'men'},
+  {name:'مضاوي جولد',en:'MADAWY GOLD',desc:'لمسة ذهبية فاخرة على الـ MADAWY الأصلي.',cat:'men'},
+  {name:'الكسندريا ٢',en:'ALEXANDRIA 2',desc:'أجواء متوسطية — منعش ونظيف وطويل الأمد.',cat:'men'},
+  {name:'بي ام دبليو',en:'BMW',desc:'انتعاش مائي حاد وأنيق ومصقول.',cat:'men'},
+  {name:'ديور سوفاج',en:'Sauvage Dior',desc:'برغموت كالابري نقي مع العنبروكسيد الخام.',cat:'men'},
+  {name:'سوفاج اليكسير',en:'Sauvage Elixir',desc:'تركيز خشبي توابلي مكثف.',cat:'men'},
+  {name:'وان مليون لاكي',en:'One Million Lucky',desc:'جريب فروت منعش مع البندق.',cat:'men'},
+  {name:'وان مليون اليكسير',en:'One Million Elixir',desc:'عنبر غني ومكثف بأثر ذهبي.',cat:'men'},
+  {name:'جولد',en:'Gold',desc:'مزيج زهري خشبي فاخر.',cat:'men'},
+  {name:'توباكو فانيليا',en:'Tobacco Vanilla',desc:'تبغ دافئ وفانيليا غنية.',cat:'men'},
+  {name:'اربيان توباكو',en:'Arabian Tobacco',desc:'عود مدخن يلتقي بالتبغ.',cat:'men'},
+  {name:'ازاررو ونتيدد',en:'Wanted Azzaro',desc:'هيل حار مع الفيتيفير.',cat:'men'},
+  {name:'سبايس بومب اكستريم',en:'Spicebomb Extreme',desc:'مزيج متفجر من القرفة واللافا.',cat:'men'},
+  {name:'انفيكتوس',en:'Invictus',desc:'جريب فروت مائي منعش.',cat:'men'},
+  {name:'انفيكتوس اليكسير',en:'Invictus Elixir',desc:'تركيز حسي مكثف.',cat:'men'},
+  {name:'مرسيدس',en:'MERCEDES',desc:'أخشاب راقية ومسك.',cat:'men'},
+  {name:'ميجامار',en:'MEGAMARE',desc:'انتعاش بحري عميق.',cat:'men'},
+  {name:'ذارا فور هيم',en:'ZARA FOR HIM',desc:'فوجيري مائي منعش.',cat:'men'},
+  {name:'ذارا جولد',en:'ZARA GOLD',desc:'عنبر دافئ وخشب الصندل.',cat:'men'},
+  {name:'ذارا',en:'ZARA',desc:'مزيج نظيف منعش.',cat:'men'},
+  {name:'ماجنيتك',en:'Magnetic',desc:'مسك خشبي مغناطيسي.',cat:'men'},
+  {name:'بوص ذا سنت ماجنيتك',en:'Boss The Scent Magnetic',desc:'زنجبيل وفيتيفير.',cat:'men'},
+  {name:'بوص بوتلد',en:'Boss Bottled',desc:'تفاح وقرفة كلاسيكي.',cat:'men'},
+  {name:'بوص بوتلد ابسلو',en:'Boss Bottled Absolu',desc:'عنبر معدني مكثف.',cat:'men'},
+  {name:'بوص بوتلد عود',en:'Boss Bottled Oud',desc:'عود ثمين ببصمة Boss.',cat:'men'},
+  {name:'ديور هوم انتنس',en:'Dior Homme Intense',desc:'أيريس وفيتيفير.',cat:'men'},
+  {name:'لوميل اليكسير',en:'Le Male Elixir',desc:'فانيليا دافئة ولافندر.',cat:'men'},
+  {name:'الترا مل',en:'Ultra Male',desc:'كمثرى مكثفة ولافندر.',cat:'men'},
+  {name:'الترا مارن',en:'Ultra Marine',desc:'لافندر بحري منعش.',cat:'men'},
+  {name:'هوجو',en:'HUGO',desc:'تفاح أخضر وأعشاب.',cat:'men'},
+  {name:'هوجو بوص',en:'HUGO BOSS',desc:'فوجيري خالد ونظيف.',cat:'men'},
+  {name:'سكلبتشر',en:'Sculpture',desc:'انتعاش مائي مع عنبر خشبي.',cat:'men'},
+  {name:'اسنشيال',en:'Essential',desc:'سيترس عطري ومسك.',cat:'men'},
+  {name:'شيروتي',en:'Men Cerruti',desc:'توابل دافئة وأخشاب.',cat:'men'},
+  {name:'هاسيفات نيشان',en:'Hacivat Nishane',desc:'فيتيفير وسيترس غريب.',cat:'men'},
+  {name:'نيشان',en:'Nishane',desc:'مكونات شرقية نادرة.',cat:'men'},
+  {name:'سلفر سنت',en:'Silver Cent',desc:'أخشاب فضية ومسك أبيض.',cat:'men'},
+  {name:'هج سنت',en:'HUG Cent',desc:'مسك دافئ مريح.',cat:'men'},
+  {name:'انا الابيض',en:'Ana Al Abyad',desc:'مسك أبيض نقي بودري.',cat:'men'},
+  {name:'كريزي لااف',en:'Crazy Love',desc:'فاكهي خشبي مرح.',cat:'men'},
+  {name:'اكوا دي جيو',en:'Aqua di Gio',desc:'برغموت بحري وياسمين.',cat:'men'},
+  {name:'مونت بلانك',en:'Mont Blanc',desc:'لافندر وجيرانيوم.',cat:'men'},
+  {name:'مون بلو',en:'Moon Blue',desc:'أخشاب زرقاء مائية.',cat:'men'},
+  {name:'مون بلو ليجيند',en:'Moon Blue Legend',desc:'عنبر خشبي مكثف.',cat:'men'},
+  {name:'جيمي شو',en:'Game Show',desc:'سيترس وقاعدة حلوة.',cat:'men'},
+  {name:'وان مان شو',en:'One Man Show',desc:'توابل خشبية جريئة.',cat:'men'},
+  {name:'كاريزما',en:'Charisma',desc:'أخشاب وتوابل مغناطيسية.',cat:'men'},
+  {name:'سيجار',en:'Cigarette',desc:'تبغ ناعم وأرز.',cat:'men'},
+  {name:'تشيلز رجالي',en:'Chills M',desc:'انتعاش جليدي خشبي.',cat:'men'},
+  {name:'كروم ليجند',en:'Chrome Legend',desc:'معدني منعش وزهر البرتقال.',cat:'men'},
+  {name:'تومي',en:'Tommy',desc:'تفاح مقرمش ولافندر.',cat:'men'},
+  {name:'٤٠ عقدة',en:'40 Knots',desc:'انتعاش خشبي بحري.',cat:'men'},
+  {name:'بلاك افغانو',en:'Black Afghano',desc:'قنب مظلم وعود.',cat:'men'},
+  {name:'جود جيرل',en:'Good Girl',desc:'ياسمين وتونكا بين.',cat:'women'},
+  {name:'سكاندال باي نايت',en:'Scandal By Night',desc:'عسل وباتشولي.',cat:'women'},
+  {name:'سي ارماني',en:'Si Armani',desc:'كشمش أسود وورد.',cat:'women'},
+  {name:'سي فيوري',en:'Si Fiery',desc:'ورد نابض وعنبر.',cat:'women'},
+  {name:'سي ريد',en:'Si Red',desc:'توت أحمر ومسك.',cat:'women'},
+  {name:'اوليمبيا',en:'Olympea',desc:'فانيليا مالحة وكشمير.',cat:'women'},
+  {name:'فيري سيكسي ناو',en:'Very Sexy Now',desc:'توت أحمر وزهور.',cat:'women'},
+  {name:'جادور',en:"J'Adore",desc:'يلانج يلانج وورد.',cat:'women'},
+  {name:'كاسيليا',en:'Caselia',desc:'زهور ناعمة ومسك.',cat:'women'},
+  {name:'لافي بيل',en:'La Vie Belle',desc:'أيريس وبراليني فانيليا.',cat:'women'},
+  {name:'لوست شيري',en:'Lost Cherry',desc:'كرز ولوز فاخر.',cat:'women'},
+  {name:'بينك شوجر',en:'Pink Sugar',desc:'حلوى قطنية وفانيليا.',cat:'women'},
+  {name:'ماي واي',en:'My Way',desc:'ياسمين وزهر البرتقال.',cat:'women'},
+  {name:'بيربري هير',en:'Burberry Her',desc:'توت وياسمين.',cat:'women'},
+  {name:'بيربري بدي',en:'Burberry Body',desc:'خوخ وخشب الصندل.',cat:'women'},
+  {name:'تندر',en:'Tender',desc:'زهور بودرية ناعمة.',cat:'women'},
+  {name:'فيكتوريا سيكريت',en:'Victoria Secret',desc:'مسك خفيف وياسمين.',cat:'women'},
+  {name:'بيانكو لاتيه',en:'Bianco Latte',desc:'فانيليا حليبية.',cat:'women'},
+  {name:'ديلينا دي مارلي',en:'Delina De Marly',desc:'راوند وورد ملكي.',cat:'women'},
+  {name:'بيلي ايليش',en:'Billie Eilish',desc:'ماندرين ومسك.',cat:'women'},
+  {name:'فانتازيا',en:'Fantasia',desc:'زهور فاكهية حالمة.',cat:'women'},
+  {name:'تشيلز نسائي',en:'Chills W',desc:'زهور باردة أنثوية.',cat:'women'},
+  {name:'وصال',en:'Wesal',desc:'عود زهري رقيق.',cat:'unisex'},
+  {name:'يارا',en:'YARA',desc:'زهور ناعمة ومسك.',cat:'unisex'},
+  {name:'يارا كاندي',en:'YARA Candy',desc:'زهور فاكهية حلوة.',cat:'unisex'},
+  {name:'خُمرة',en:'KHAMRAH',desc:'توت دافئ وعود.',cat:'unisex'},
+  {name:'خُمرة قهوة',en:'KHAMRAH Coffee',desc:'قهوة غنية وعنبر.',cat:'unisex'},
+  {name:'خُمرة دخان',en:'KHAMRAH DUKHAN',desc:'بخور مدخن وعود.',cat:'unisex'},
+  {name:'عود أبيض',en:'OUD White',desc:'عود أبيض نقي.',cat:'oud'},
+  {name:'مسك أبيض',en:'White Musk',desc:'مسك أبيض كلاسيكي.',cat:'oud'},
+  {name:'مسك طيبة',en:'Taybah Musk',desc:'مسكنا المميز.',cat:'oud'},
+  {name:'مسك بكرات روج',en:'Musk Rouge',desc:'مسك أحمر عميق.',cat:'oud'},
+  {name:'مسك رمان',en:'Pomegranate Musk',desc:'رمان ومسك منعش.',cat:'oud'},
+  {name:'مسك فراولة',en:'Strawberry Musk',desc:'فراولة ومسك ناعم.',cat:'oud'},
+  {name:'مسك قهوة',en:'Coffee Musk',desc:'قهوة محمصة ومسك.',cat:'oud'},
+  {name:'مسك توت',en:'Berry Musk',desc:'توت بري ومسك.',cat:'oud'},
+  {name:'مسك فانيليا',en:'Vanilla Musk',desc:'فانيليا ومسك بودري.',cat:'oud'},
+  {name:'مسك بودر',en:'Powder Musk',desc:'مسك بودري ناعم.',cat:'oud'},
+  {name:'مسك انجليزي',en:'English Musk',desc:'مسك بريطاني نظيف.',cat:'oud'},
+  {name:'مسك طهارة',en:'Purity Musk',desc:'مسك أبيض روحاني.',cat:'oud'},
+  {name:'عود كلمات',en:'Oud Kalimat',desc:'عود ثمين بلسمي.',cat:'oud'},
+  {name:'عود بوكيه',en:'Oud Bouquet',desc:'مزيج عود زهري.',cat:'oud'},
+];
+
+let settings = {
+  price30: 200, price50: 350, price100: 650,
+  whatsNum: '2001202297700',
+  instaLink: 'https://www.instagram.com/teba_perfumes',
+  tgChat: '1118704634'
+};
+
+let editIdx = -1;
+
+// ===== LOGIN =====
+function doLogin(){
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value.trim();
+  if(u === ADMIN_USER && p === ADMIN_PASS){
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    renderTable(products);
+    updateStats();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+document.getElementById('loginPass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+function doLogout(){
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+// ===== TABS =====
+function switchTab(tab, btn){
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-'+tab).classList.add('active');
+}
+
+// ===== STATS =====
+function updateStats(){
+  document.getElementById('statTotal').textContent = products.length;
+  document.getElementById('statMen').textContent = products.filter(p=>p.cat==='men').length;
+  document.getElementById('statWomen').textContent = products.filter(p=>p.cat==='women').length;
+  document.getElementById('statOud').textContent = products.filter(p=>p.cat==='oud').length;
+}
+
+// ===== TABLE =====
+const CAT_LABEL = {men:'رجالي',women:'نسائي',unisex:'مشترك',oud:'عود / مسك'};
+const CAT_CLASS = {men:'cat-men',women:'cat-women',unisex:'cat-unisex',oud:'cat-oud'};
+
+function renderTable(list){
+  const tbody = document.getElementById('productsTableBody');
+  tbody.innerHTML = list.map((p,i) => {
+    const p30 = p.price30 || settings.price30;
+    const p50 = p.price50 || settings.price50;
+    const p100 = p.price100 || settings.price100;
+    const hasCustom = p.price30 || p.price50 || p.price100;
+    return `
+    <tr>
+      <td style="color:#555;">${i+1}</td>
+      <td><strong>${p.name}</strong><br><span style="color:#555;font-size:11px;">${p.en}</span></td>
+      <td><span class="cat-badge ${CAT_CLASS[p.cat]}">${CAT_LABEL[p.cat]}</span></td>
+      <td style="font-size:12px;color:#aaa;">
+        <span style="color:${hasCustom?'var(--gold)':'#555'}">${hasCustom?'⭐ خاص':'عام'}</span><br>
+        30مل: <span style="color:var(--gold)">${p30}ج</span> |
+        50مل: <span style="color:var(--gold)">${p50}ج</span> |
+        100مل: <span style="color:var(--gold)">${p100}ج</span>
+      </td>
+      <td style="color:#777;font-size:12px;max-width:160px;">${p.desc}</td>
+      <td>
+        <div class="action-btns">
+          <button class="edit-btn" onclick="openEditModal(${products.indexOf(p)})">✏️ تعديل</button>
+          <button class="del-btn" onclick="deleteProduct(${products.indexOf(p)})">🗑 حذف</button>
+        </div>
+      </td>
+    </tr>`}).join('');
+}
+
+function searchProducts(q){
+  const filtered = products.filter(p =>
+    p.name.includes(q) || p.en.toLowerCase().includes(q.toLowerCase()) || p.desc.includes(q)
+  );
+  renderTable(filtered);
+}
+
+// ===== MODAL =====
+function openAddModal(){
+  editIdx = -1;
+  document.getElementById('modalTitle').textContent = 'إضافة عطر جديد';
+  document.getElementById('mName').value = '';
+  document.getElementById('mEn').value = '';
+  document.getElementById('mDesc').value = '';
+  document.getElementById('mCat').value = 'men';
+  document.getElementById('mP30').value = '';
+  document.getElementById('mP50').value = '';
+  document.getElementById('mP100').value = '';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openEditModal(idx){
+  editIdx = idx;
+  const p = products[idx];
+  document.getElementById('modalTitle').textContent = 'تعديل: ' + p.name;
+  document.getElementById('mName').value = p.name;
+  document.getElementById('mEn').value = p.en;
+  document.getElementById('mDesc').value = p.desc;
+  document.getElementById('mCat').value = p.cat;
+  document.getElementById('mP30').value = p.price30 || '';
+  document.getElementById('mP50').value = p.price50 || '';
+  document.getElementById('mP100').value = p.price100 || '';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function saveProduct(){
+  const name = document.getElementById('mName').value.trim();
+  const en = document.getElementById('mEn').value.trim();
+  const desc = document.getElementById('mDesc').value.trim();
+  const cat = document.getElementById('mCat').value;
+  const p30 = document.getElementById('mP30').value;
+  const p50 = document.getElementById('mP50').value;
+  const p100 = document.getElementById('mP100').value;
+  if(!name || !en){ showToast('❌ الاسم مطلوب', true); return; }
+  const obj = {name, en, desc, cat};
+  if(p30) obj.price30 = parseInt(p30);
+  if(p50) obj.price50 = parseInt(p50);
+  if(p100) obj.price100 = parseInt(p100);
+  if(editIdx === -1){
+    products.push(obj);
+    showToast('✅ تم إضافة العطر');
+  } else {
+    products[editIdx] = obj;
+    showToast('✅ تم تعديل العطر');
+  }
+  closeModal();
+  renderTable(products);
+  updateStats();
+}
+
+function deleteProduct(idx){
+  if(!confirm(`هل تريد حذف "${products[idx].name}"؟`)) return;
+  products.splice(idx,1);
+  renderTable(products);
+  updateStats();
+  showToast('🗑 تم الحذف');
+}
+
+// ===== SETTINGS =====
+function savePrices(){
+  settings.price30 = document.getElementById('price30').value;
+  settings.price50 = document.getElementById('price50').value;
+  settings.price100 = document.getElementById('price100').value;
+  showToast('✅ تم حفظ الأسعار');
+}
+
+function saveContact(){
+  settings.whatsNum = document.getElementById('whatsNum').value;
+  settings.instaLink = document.getElementById('instaLink').value;
+  settings.tgChat = document.getElementById('tgChat').value;
+  showToast('✅ تم حفظ بيانات التواصل');
+}
+
+function previewImg(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('imgPreview');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    settings.productImg = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveProductImg(){
+  const url = document.getElementById('productImgUrl').value.trim();
+  if(url) settings.productImg = url;
+  if(!settings.productImg){ showToast('❌ اختار صورة أو اكتب رابط', true); return; }
+  showToast('✅ تم حفظ الصورة');
+}
+
+// ===== PUBLISH TO GITHUB =====
+async function publishToGitHub(){
+  showSaving('جاري بناء الملف ونشره...');
+
+  try {
+    // 1. Get current file SHA
+    const fileRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
+      headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json' }
+    });
+    const fileData = await fileRes.json();
+    const sha = fileData.sha;
+
+    // 2. Build new HTML content
+    const newContent = buildHTML();
+    const encoded = btoa(unescape(encodeURIComponent(newContent)));
+
+    // 3. Push to GitHub
+    const pushRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `token ${GITHUB_TOKEN}`,
+        Accept: 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: '🔄 Update from Taybah Dashboard',
+        content: encoded,
+        sha: sha
+      })
+    });
+
+    hideSaving();
+    if(pushRes.ok){
+      showToast('🚀 تم النشر على GitHub بنجاح!');
+      document.getElementById('publishStatus').innerHTML = `<span style="color:var(--green)">✅ آخر نشر: ${new Date().toLocaleString('ar-EG')}</span>`;
+    } else {
+      const err = await pushRes.json();
+      showToast('❌ فشل النشر: ' + (err.message||''), true);
+    }
+  } catch(e){
+    hideSaving();
+    showToast('❌ خطأ في الاتصال بـ GitHub', true);
+  }
+}
+
+function buildHTML(){
+  const p30 = settings.price30 || 200;
+  const p50 = settings.price50 || 350;
+  const p100 = settings.price100 || 650;
+  const whats = settings.whatsNum || '2001202297700';
+  const insta = settings.instaLink || '';
+  const tgChat = settings.tgChat || '1118704634';
+  const prodImg = settings.productImg || '';
+
+  const productsJS = JSON.stringify(products);
+
+  // Read the current site template and inject new data
+  return `<!-- TAYBAH PERFUMES - Auto generated by Dashboard -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>طيبة للعطور</title>
+<script>
+  // Dashboard settings injected
+  window.SITE_CONFIG = {
+    price30: ${p30}, price50: ${p50}, price100: ${p100},
+    whatsNum: '${whats}', instaLink: '${insta}', tgChat: '${tgChat}',
+    productImg: '${prodImg}',
+    products: ${productsJS}
+  };
+<\/script>
+</head>
+<body>
+<script>
+  // Redirect to main site with config
+  const cfg = window.SITE_CONFIG;
+  document.write('<p style="font-family:Cairo;text-align:center;margin-top:50px;color:#e0b252;">جاري التحميل...</p>');
+  setTimeout(()=>{ location.href = 'site.html'; }, 500);
+<\/script>
+</body>
+</html>`;
+}
+
+// ===== HELPERS =====
+function showToast(msg, isError=false){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isError?' error':'');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+function showSaving(msg='جاري الحفظ...'){
+  document.getElementById('savingMsg').textContent = msg;
+  document.getElementById('savingOverlay').classList.add('show');
+}
+
+function hideSaving(){
+  document.getElementById('savingOverlay').classList.remove('show');
+}
+</script>
+</body>
+</html>
